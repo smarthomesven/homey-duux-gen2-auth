@@ -56,14 +56,27 @@
             const statusDiv = document.getElementById('status');
             
             try {
-                // Extract homey ID from hash path (e.g., #/ABC123)
+                // Extract homey ID and code from hash
                 const hash = window.location.hash;
-                const hashPath = hash.split('?')[0]; // Get part before query string
-                const homeyId = hashPath.replace(/^#\/?/, '').replace(/\/$/, ''); // Remove # and slashes
                 
-                // Extract code from query parameters
-                const urlParams = new URLSearchParams(window.location.search);
-                const code = urlParams.get('code');
+                // Split hash into path and query parts
+                const hashParts = hash.split('?');
+                const hashPath = hashParts[0];
+                const hashQuery = hashParts[1] || '';
+                
+                // Extract homey ID from hash path (e.g., #/ABC123)
+                const homeyId = hashPath.replace(/^#\/?/, '').replace(/\/$/, '');
+                
+                // Try to get code from hash query first, then fall back to actual query string
+                let code = null;
+                if (hashQuery) {
+                    const hashParams = new URLSearchParams(hashQuery);
+                    code = hashParams.get('code');
+                }
+                if (!code) {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    code = urlParams.get('code');
+                }
                 
                 // Validate parameters
                 if (!homeyId || !code) {
